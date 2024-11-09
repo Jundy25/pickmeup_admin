@@ -119,7 +119,7 @@ const Modal = ({
 
     const handleImageClick = () => {
       if (!isTextRequirement) {
-        setSelectedImage(fullUrl);
+        setSelectedImage(photo.photo_url);
       }
     };
 
@@ -137,7 +137,7 @@ const Modal = ({
           </p>
         ) : (
           <img
-            src={fullUrl}
+            src={photo.photo_url}
             alt={requirementMapping[photo.requirement_id]}
             className="w-full h-48 object-cover rounded cursor-pointer"
             onClick={handleImageClick}
