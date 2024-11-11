@@ -11,7 +11,7 @@ const ManageAccount = () => {
   const [initialData, setInitialData] = useState({
     user_name: '',
     email: '',
-    profile_picture: null
+    // profile_picture: null
   });
   const [formData, setFormData] = useState({
     user_name: '',
@@ -19,7 +19,7 @@ const ManageAccount = () => {
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    profilePicture: null
+    // profilePicture: null
   });
   const [profilePreview, setProfilePreview] = useState(null);
   const [errors, setErrors] = useState({});
@@ -41,7 +41,7 @@ const ManageAccount = () => {
         const userData = {
           user_name: user.user_name,
           email: user.email,
-          profile_picture: user.profile_picture
+          // profile_picture: user.profile_picture
         };
 
         setInitialData(userData);
@@ -125,66 +125,85 @@ const ManageAccount = () => {
     e.preventDefault();
     
     if (!validateForm()) {
-      return;
+        return;
     }
 
     try {
-      setIsLoading(true);
-      const formDataToSend = new FormData();
-      let hasChanges = false;
+        setIsLoading(true);
+        const formDataToSend = new FormData();
+        let hasChanges = false;
 
-      // Debug log
-      console.log('Current form data:', formData);
-      console.log('Initial data:', initialData);
+        // Check for actual changes and append only changed values
+        if (formData.user_name && formData.user_name !== initialData.user_name) {
+            formDataToSend.append('user_name', formData.user_name);
+            hasChanges = true;
+        }
 
-      // Always append the values (for testing)
-      formDataToSend.append('user_name', formData.user_name);
-      formDataToSend.append('email', formData.email);
-      
-      if (formData.newPassword) {
-        formDataToSend.append('currentPassword', formData.currentPassword);
-        formDataToSend.append('newPassword', formData.newPassword);
-        formDataToSend.append('newPassword_confirmation', formData.confirmPassword);
-      }
-      
-      if (formData.profilePicture) {
-        formDataToSend.append('profilePicture', formData.profilePicture);
-      }
+        if (formData.email && formData.email !== initialData.email) {
+            formDataToSend.append('email', formData.email);
+            hasChanges = true;
+        }
+        
+        if (formData.newPassword) {
+            formDataToSend.append('currentPassword', formData.currentPassword);
+            formDataToSend.append('newPassword', formData.newPassword);
+            formDataToSend.append('newPassword_confirmation', formData.confirmPassword);
+            hasChanges = true;
+        }
 
-      // Debug log FormData contents
-      console.log('FormData contents:');
-      for (let pair of formDataToSend.entries()) {
-        console.log(pair[0], pair[1]);
-      }
+        // If no changes, show message and return early
+        if (!hasChanges) {
+            setNotification({
+                type: 'info',
+                message: 'No changes detected'
+            });
+            setIsLoading(false);
+            return;
+        }
 
-      const response = await userService.updateAccount(userId, formDataToSend);
-      
-      // Log response
-      console.log('Update response:', response);
-
-      setNotification({
-        type: 'success',
-        message: response.message || 'Profile updated successfully!'
-      });
-      
-      // Clear password fields
-      setFormData(prev => ({
-        ...prev,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      }));
+        const response = await userService.updateAccount(userId, formDataToSend);
+        
+        // Handle the response based on status
+        if (response.status === 304) {
+            setNotification({
+                type: 'info',
+                message: response.message
+            });
+        } else {
+            setNotification({
+                type: 'success',
+                message: response.message || 'Profile updated successfully!'
+            });
+            
+            // Update initial data with new values
+            if (response.user) {
+                setInitialData({
+                    user_name: response.user.user_name,
+                    email: response.user.email
+                });
+                
+                // Update form data to match new values
+                setFormData(prev => ({
+                    ...prev,
+                    user_name: response.user.user_name,
+                    email: response.user.email,
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                }));
+            }
+        }
 
     } catch (error) {
-      console.error('Submit error:', error);
-      setNotification({
-        type: 'error',
-        message: error.response?.data?.error || 'An error occurred while updating your profile.'
-      });
+        console.error('Submit error:', error);
+        setNotification({
+            type: 'error',
+            message: error.message || 'An error occurred while updating your profile.'
+        });
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
 
   if (isLoading && !formData.user_name) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;

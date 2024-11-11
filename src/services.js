@@ -111,19 +111,44 @@ const userService = {
   //   return response.data;
   // },
 
-  updateAdmin: async (editingAdmin, adminData) => {
-    console.log("ANG YAWA NGA ID: ", editingAdmin.user_id);
+  updateAccount : async (userId, formData) => {
     try {
-      const response = await axios.put(
-        API_URL + `update_admin/${editingAdmin.user_id}`,
-        adminData
-      );
-      return response.data;
+        console.log('Updating account for user:', userId);
+        console.log('FormData contents before sending:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
+
+        const response = await axios.post(
+            `${API_URL}/user/update_account/${userId}`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Accept': 'application/json'
+                },
+                validateStatus: function (status) {
+                    // Accept 304 as a valid status code along with 2xx
+                    return (status >= 200 && status < 300) || status === 304;
+                }
+            }
+        );
+
+        // Handle 304 Not Modified
+        if (response.status === 304) {
+            return {
+                message: 'No changes were made',
+                status: 304,
+                user: response.data.user
+            };
+        }
+
+        return response.data;
     } catch (error) {
-      throw error;
+        console.error('Service error:', error);
+        throw new Error(error.response?.data?.error || 'An error occurred while updating the account.');
     }
   },
-
   updateAccount: async (userId, formData) => {
     try {
       // Debug logs

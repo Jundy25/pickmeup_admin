@@ -295,7 +295,7 @@ const RidersList = () => {
                       <th className="px-4 py-2">Status</th>
                       <th className="px-4 py-2">License Expiration</th>
                       <th className="px-4 py-2">OR Expiration</th>
-                      <th className="px-4 py-2">Paid for weekly</th>
+                      <th className="px-4 py-2">Availability</th>
                       <th className="px-4 py-2">More</th>
                     </tr>
                   </thead>
@@ -347,7 +347,7 @@ const RidersList = () => {
                             : "No OR Expiration Date"}
                         </td>
                         <td>
-                          <span>Paid</span>
+                          <span>{rider.rider.availability}</span>
                         </td>
                         <td className="px-4 py-2">
                           <button
