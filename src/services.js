@@ -69,6 +69,16 @@ const userService = {
       // Optionally handle any errors if needed
     }
   },
+  signup: async (userData) => {
+    try {
+      const response = await axios.post(API_URL + "signup", userData);
+      return response.data; // Return the response data
+      
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
+  },
 
   fetchAdminById: async (userId) => {
     const response = await axios.get(API_URL + `adminId/${userId}`);
@@ -111,44 +121,47 @@ const userService = {
   //   return response.data;
   // },
 
-  updateAccount : async (userId, formData) => {
-    try {
-        console.log('Updating account for user:', userId);
-        console.log('FormData contents before sending:');
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
+//   updateAccount: async (userId, formData) => {
+//     try {
+//         console.log('Updating account for user:', userId);
+//         console.log('FormData contents before sending:');
+//         for (let pair of formData.entries()) {
+//             console.log(pair[0], pair[1]);
+//         }
 
-        const response = await axios.post(
-            `${API_URL}/user/update_account/${userId}`,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Accept': 'application/json'
-                },
-                validateStatus: function (status) {
-                    // Accept 304 as a valid status code along with 2xx
-                    return (status >= 200 && status < 300) || status === 304;
-                }
-            }
-        );
+//         const url = `${API_URL}update_account/${userId}`; // Make sure path matches Laravel route
+//         console.log('Request URL:', url);
 
-        // Handle 304 Not Modified
-        if (response.status === 304) {
-            return {
-                message: 'No changes were made',
-                status: 304,
-                user: response.data.user
-            };
-        }
+//         const response = await axios({
+//             method: 'put',  // Change to POST if your Laravel route expects POST
+//             url: url,
+//             data: formData,
+//             headers: {
+//                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+//                 'Content-Type': 'multipart/form-data',
+//                 'Accept': 'application/json'
+//             }
+//         });
+        
+//         // Handle 304 responses
+//         if (response.status === 304) {
+//             return {
+//                 status: 304,
+//                 message: 'No changes were made',
+//                 user: response.data?.user || null
+//             };
+//         }
 
-        return response.data;
-    } catch (error) {
-        console.error('Service error:', error);
-        throw new Error(error.response?.data?.error || 'An error occurred while updating the account.');
-    }
-  },
+//         return response.data;
+//     } catch (error) {
+//         console.error('Service error:', error.response || error);
+//         throw new Error(
+//             error.response?.data?.error || 
+//             error.response?.data?.message || 
+//             'An error occurred while updating the account.'
+//         );
+//     }
+// },
   updateAccount: async (userId, formData) => {
     try {
       // Debug logs
