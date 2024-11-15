@@ -193,6 +193,16 @@ const userService = {
     }
   },
 
+  updateAdmin: async (editingAdmin, adminData) => {
+    console.log("ANG YAWA NGA ID: ", editingAdmin.user_id);
+    try {
+      const response = await axios.put(API_URL + `update_admin/${editingAdmin.user_id}`, adminData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   updateAdminStatus: async (userId, status) => {
     try {
       const response = await axios.put(
