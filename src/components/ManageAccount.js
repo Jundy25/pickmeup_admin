@@ -50,13 +50,13 @@ const ManageAccount = () => {
 
         const userData = {
           user_name: user.user_name,
-          email: user.email,
           first_name: user.first_name,
           last_name: user.last_name,
           gender: user.gender,
           date_of_birth: user.date_of_birth,
+          email: user.email,
           mobile_number: user.mobile_number,
-          profile_picture: user.profile_picture
+          // profile_picture: user.profile_picture
         };
 
         setInitialData(userData);

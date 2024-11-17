@@ -13,8 +13,9 @@ export const Feedback = () => {
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const data = await userService.fetchFeedbacks();
-        setFeedbacks(data);
+        const response = await userService.fetchFeedbacks();
+        setFeedbacks(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("There was an error fetching the feedbacks!", error);
       } finally {
@@ -87,7 +88,7 @@ export const Feedback = () => {
                         <th className="p-4 text-left">Sender</th>
                         <th className="p-4 text-left">Comment</th>
                         <th className="p-4 text-left">Recipient</th>
-                        <th className="p-4 text-left">Sender Type</th>
+                        <th className="p-4 text-left">Ratings</th>
                         <th className="p-4 text-left">Date</th>
                         <th className="p-4 text-left">Ride ID</th>
                       </tr>
@@ -112,9 +113,7 @@ export const Feedback = () => {
                               : "N/A"}
                           </td>
                           <td className="p-4">
-                            {feedback.sender_type
-                              ? feedback.sender_type.split("\\").pop()
-                              : "N/A"}
+                          {feedback.rating || "N/A"}
                           </td>
                           <td className="p-4">
                             {feedback.created_at

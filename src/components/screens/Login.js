@@ -24,6 +24,13 @@ const Login = () => {
       const { token, role, user_id, status } = await userService.login(email, password);
       console.log("Creds",token, role, user_id, status)
 
+      
+      if (status === "Disabled"){
+        setError("Account Disabled! Please Contact SuperAdmin for More Info!");
+        setIsLoading(false);
+        return;
+      }
+
       if (role !== 1 && role !== 2) {
         setError("Unauthorized access");
         setIsLoading(false);

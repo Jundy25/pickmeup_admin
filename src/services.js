@@ -7,6 +7,22 @@ const userService = {
     try {
       const response = await axios.post(API_URL + "login", { email, password });
 
+      if (response.data.status === "Disabled") {
+        // Successful login
+        swal.fire({
+          title: "Account Disabled! Please Contact SuperAdmin for More Info!",
+          icon: "warning",
+          toast: true,
+          timer: 4000,
+          position: "top-right",
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+
+        // Additional actions if needed, like saving the token
+        return response.data;
+      }
+      
       if (response.data.token) {
         // Successful login
         swal.fire({
