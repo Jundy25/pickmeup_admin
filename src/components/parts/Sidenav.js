@@ -28,7 +28,8 @@ const Sidenav = () => {
     { path: "/manageuser", label: "Manage Users" },
     { path: "/manageadmin", label: "Manage Admin", role: 1 },
     { path: "/bookinghistory", label: "Booking History" },
-    { path: "/feedback", label: "Feedback" },
+    { path: "/feedback", label: "Feedbacks" },
+    { path: "/report", label: "Reports" },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -185,7 +186,20 @@ const Sidenav = () => {
               }`}
               disabled={isActive("/feedback")}
             >
-              Feedback
+              Feedbacks
+            </button>
+
+            {/* Report */}
+            <button
+              onClick={() => handleClick("/report")}
+              className={`block w-full text-left px-4 py-2 ${
+                isActive("/report")
+                  ? "bg-yellow-600 text-white cursor-not-allowed"
+                  : "text-black bg-yellow-500 hover:bg-yellow-600"
+              }`}
+              disabled={isActive("/report")}
+            >
+              Reports
             </button>
           </div>
         </div>

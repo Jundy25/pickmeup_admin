@@ -1,19 +1,32 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Icon } from "leaflet";
 import Sidenav from "../../parts/Sidenav";
 import Header from "../../parts/Header";
 import userService from "../../../services";
 import "leaflet/dist/leaflet.css";
-
-// Make sure to add these CSS imports in your index.js or relevant CSS file:
-// import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import yellow from "../../pictures/rider_yellow.png";
+import red from "../../pictures/rider_red.png";
+import blue from "../../pictures/rider_blue.png";
+import MapSearchController from "./MapSearchController";
 
 const DEFAULT_CENTER = [8.504203, 124.60238];
 const DEFAULT_ZOOM = 14;
 
 // Custom marker icons
-const createIcon = (iconUrl) =>
+const createRiderIcon = (iconUrl) =>
+  new Icon({
+    iconUrl,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+    shadowSize: [32, 32],
+  });
+
+const createPinIcon = (iconUrl) =>
   new Icon({
     iconUrl,
     iconSize: [25, 41],
@@ -23,15 +36,15 @@ const createIcon = (iconUrl) =>
   });
 
 const icons = {
-  available: createIcon(
+  available: createRiderIcon(yellow),
+  offline: createRiderIcon(red),
+  booked: createRiderIcon(blue),
+  device: createPinIcon(
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png"
+  ),
+  cluster: createPinIcon(
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png"
-  ),
-  unavailable: createIcon(
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png"
-  ),
-  device: createIcon(
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png"
-  ),
+  )
 };
 
 // Debug Panel Component
@@ -44,16 +57,34 @@ const DebugPanel = ({ data }) => (
         <h1 className="font-bold mb-2">Icon Legend:</h1>
         <div className="flex items-center space-x-2 mb-1">
           <img
-            src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png"
+            src={yellow}
             alt="Available Riders"
             height={15}
             width={15}
           />
-          <p>Available Riders</p>
+          <p>Available</p>
+        </div>
+        <div className="flex items-center space-x-2 mb-1">
+          <img
+            src={blue}
+            alt="Available Riders"
+            height={15}
+            width={15}
+          />
+          <p>Booked</p>
+        </div>
+        <div className="flex items-center space-x-2 mb-1">
+          <img
+            src={red}
+            alt="Available Riders"
+            height={15}
+            width={15}
+          />
+          <p>Offline</p>
         </div>
         <div className="flex items-center space-x-2">
           <img
-            src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png"
+            src={"https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png"}
             alt="Available Riders"
             height={15}
             width={15}
@@ -95,13 +126,68 @@ const Alert = ({ message, type = "error", onClose }) => (
   </div>
 );
 
-// Map Controller Component for updating map view
-const MapController = ({ center, zoom }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [center, map, zoom]);
-  return null;
+// Custom cluster icon styles
+const createClusterCustomIcon = function (cluster) {
+  return new Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`
+  });
+};
+
+// New component to handle marker updates
+const DynamicMarkers = ({ riders, icons, search }) => {
+  const markers = useMemo(() => {
+    return riders.map((rider) => {
+      const isHighlighted = search && 
+        (rider.user.first_name.toLowerCase().includes(search.toLowerCase()) ||
+         rider.user.last_name.toLowerCase().includes(search.toLowerCase()));
+
+      return (
+        <Marker
+          key={rider.rider_id}
+          position={[
+            parseFloat(rider.rider_latitude),
+            parseFloat(rider.rider_longitude),
+          ]}
+          icon={
+            rider.availability === "Available"
+              ? icons.available
+              : rider.availability === "Booked"
+              ? icons.booked
+              : icons.offline
+          }
+          // Add a larger z-index to highlighted markers
+          zIndexOffset={isHighlighted ? 1000 : 0}
+        >
+          <Popup>
+            <div>
+              <h3 className="font-bold">
+                {rider.user.first_name} {rider.user.last_name}
+              </h3>
+              <p>Status: {rider.availability}</p>
+            </div>
+          </Popup>
+        </Marker>
+      );
+    });
+  }, [riders, icons, search]);
+
+  return (
+    <MarkerClusterGroup
+      chunkedLoading
+      spiderfyOnMaxZoom={true}
+      showCoverageOnHover={true}
+      zoomToBoundsOnClick={true}
+      maxClusterRadius={40}
+      iconCreateFunction={createClusterCustomIcon}
+      removeOutsideVisibleBounds={true}
+    >
+      {markers}
+    </MarkerClusterGroup>
+  );
 };
 
 const RidersLocation = () => {
@@ -112,7 +198,6 @@ const RidersLocation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [warning, setWarning] = useState(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
     totalRiders: 0,
     validRiders: 0,
@@ -130,7 +215,6 @@ const RidersLocation = () => {
             position.coords.latitude,
             position.coords.longitude,
           ];
-          console.log("Device location obtained:", newLocation);
           setDeviceLocation(newLocation);
           setMapCenter(newLocation);
           setDebugInfo((prev) => ({
@@ -149,11 +233,6 @@ const RidersLocation = () => {
             deviceLocation: null,
             currentCenter: DEFAULT_CENTER,
           }));
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
         }
       );
     }
@@ -161,14 +240,10 @@ const RidersLocation = () => {
 
   const fetchRiders = useCallback(async () => {
     try {
-      setIsLoading(true);
       const response = await userService.fetchLoc();
-      console.log("Fetched riders:", response);
-
       if (!response || !Array.isArray(response)) {
         throw new Error("Invalid response format");
       }
-
       setRiders(response);
       setDebugInfo((prev) => ({
         ...prev,
@@ -177,19 +252,18 @@ const RidersLocation = () => {
     } catch (err) {
       console.error("Error fetching riders:", err);
       setError("Failed to fetch riders locations.");
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchRiders();
-    // Uncomment for periodic updates
-    // const interval = setInterval(fetchRiders, 10000);
-    // return () => clearInterval(interval);
+    setIsLoading(true);
+    fetchRiders().finally(() => setIsLoading(false));
+    
+    const interval = setInterval(fetchRiders, 10000);
+    return () => clearInterval(interval);
   }, [fetchRiders]);
 
-  const validRiders = React.useMemo(() => {
+  const validRiders = useMemo(() => {
     const filtered = riders.filter((rider) => {
       const lat = parseFloat(rider.rider_latitude);
       const lng = parseFloat(rider.rider_longitude);
@@ -199,20 +273,10 @@ const RidersLocation = () => {
         lat >= -90 &&
         lat <= 90 &&
         lng >= -180 &&
-        lng <= 180;
+        lng <= 180 &&
+        rider.user?.first_name?.toLowerCase().includes(search.toLowerCase());
 
-      if (!isValid) {
-        console.log("Invalid coordinates for rider:", {
-          id: rider.user_id,
-          lat,
-          lng,
-        });
-      }
-
-      return (
-        isValid &&
-        rider.user?.first_name?.toLowerCase().includes(search.toLowerCase())
-      );
+      return isValid;
     });
 
     setDebugInfo((prev) => ({
@@ -237,7 +301,11 @@ const RidersLocation = () => {
 
               {error && <Alert message={error} onClose={() => setError(null)} />}
               {warning && (
-                <Alert message={warning} type="warning" onClose={() => setWarning(null)} />
+                <Alert
+                  message={warning}
+                  type="warning"
+                  onClose={() => setWarning(null)}
+                />
               )}
 
               <div className="flex mb-4">
@@ -272,14 +340,17 @@ const RidersLocation = () => {
                     center={mapCenter}
                     zoom={DEFAULT_ZOOM}
                     className="h-full w-full"
-                    whenReady={() => setMapLoaded(true)}
+                    whenReady={() => {
+                      setDebugInfo(prev => ({
+                        ...prev,
+                        mapLoaded: true
+                      }));
+                    }}
                   >
                     <TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-
-                    <MapController center={mapCenter} zoom={DEFAULT_ZOOM} />
 
                     {deviceLocation && (
                       <Marker position={deviceLocation} icon={icons.device}>
@@ -287,29 +358,8 @@ const RidersLocation = () => {
                       </Marker>
                     )}
 
-                    {validRiders.map((rider) => (
-                      <Marker
-                        key={rider.rider_id}
-                        position={[
-                          parseFloat(rider.rider_latitude),
-                          parseFloat(rider.rider_longitude),
-                        ]}
-                        icon={
-                          rider.availability === "Available"
-                            ? icons.available
-                            : icons.unavailable
-                        }
-                      >
-                        <Popup>
-                          <div>
-                            <h3 className="font-bold">
-                              {rider.user.first_name} {rider.user.last_name}
-                            </h3>
-                            <p>Status: {rider.availability}</p>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    ))}
+                    <DynamicMarkers riders={validRiders} icons={icons} search={search} />
+                    <MapSearchController riders={validRiders} search={search} />
                   </MapContainer>
 
                   {process.env.NODE_ENV === "development" && (

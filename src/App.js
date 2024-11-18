@@ -11,6 +11,7 @@ import {
 import Login from "./components/screens/Login";
 import { Dashboard } from "./components/screens/Dashboard";
 import { Feedback } from "./components/screens/Feedback";
+import { Report } from "./components/screens/Reports";
 import RidersList from "./components/screens/riders/RidersList";
 import { ManageUser } from "./components/screens/ManageUser";
 import { BookingHistory } from "./components/screens/BookingHistory";
@@ -96,6 +97,7 @@ function AppContent() {
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route path="/report" element={<Report />} />
             <Route path="/riderslist" element={<RidersList />} />
             <Route path="/ridersapplicant" element={<RidersApplicant />} />
             <Route path="/riderspayment" element={<RidersPayment />} />
