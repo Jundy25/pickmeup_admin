@@ -87,7 +87,6 @@ export const BookingHistory = () => {
         <Sidenav />
       </div>
       <div className="flex flex-col flex-1 min-w-0">
-        <Header />
         <main className="flex-1 p-3 bg-gray-100 overflow-auto">
           <div className="min-w-fit">
             <div className="bg-white shadow rounded-lg flex flex-col">

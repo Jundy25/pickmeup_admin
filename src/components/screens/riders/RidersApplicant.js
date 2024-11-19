@@ -406,7 +406,6 @@ export const RidersApplicant = () => {
             <Sidenav />
           </div>
           <div className=" flex flex-col w-full">
-            <Header />
             <main className="flex-grow p-4 bg-gray-100 overflow-auto">
               <div className="flex justify-between items-center mb-2">
                 <h1 className="text-2xl font-bold">Rider Requirements</h1>

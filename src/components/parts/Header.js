@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Menu, Dialog, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,24 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      // 768px is Tailwind's md breakpoint
+      if (window.innerWidth >= 768) {
+        setIsSideBarMenuOpen(false);
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Initial check
+    handleResize();
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, [setIsSideBarMenuOpen]);
+
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -41,29 +59,28 @@ const Header = () => {
     <>
       {/* Header Component */}
       <header className="bg-black text-white flex items-center justify-between p-4 relative z-50">
-        <div className="p-1 flex items-center space-x-2">
+        <div className="flex items-center space-x-2 ">
           <div
-            onClick={handleMenuSideBar}
-            className="flex p-1 hover:bg-[#C8A400] rounded-full"
+            onClick={() => setIsSideBarMenuOpen(!isSideBarMenuOpen)}
+            className={`p-2 ${
+              isSideBarMenuOpen ? "ml-60" : "justify-start"
+            } hover:bg-[#C8A400] rounded-full cursor-pointer`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              stroke-width="1.5"
+              strokeWidth="1.5"
               stroke="currentColor"
-              class="size-6"
+              className="w-6 h-6"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
               />
             </svg>
           </div>
-
-          {/* <img src={logo} alt="Logo" className="h-10 w-10" />
-          <span className="text-white font-bold text-xl">PickMeUp</span> */}
         </div>
         <div className="relative">
           <Menu>

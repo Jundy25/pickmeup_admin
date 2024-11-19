@@ -294,7 +294,6 @@ const RidersLocation = () => {
           <Sidenav />
         </div>
         <div className="flex flex-col w-full">
-          <Header />
           <main className="flex-grow p-4 bg-gray-50 overflow-y-auto max-h-screen">
             <div className="mb-6 relative">
               <h1 className="text-2xl font-bold mb-4">Riders Location</h1>

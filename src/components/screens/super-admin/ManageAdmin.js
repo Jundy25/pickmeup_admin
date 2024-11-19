@@ -223,7 +223,6 @@ const ManageAdmin = () => {
     <div className="flex min-h-screen">
       <Sidenav />
       <div className="flex flex-col w-full">
-        <Header />
         <main className="flex-grow p-4 bg-gray-100">
           <div className="flex">
             <div className="flex-1">
