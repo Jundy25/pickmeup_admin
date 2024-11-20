@@ -33,6 +33,7 @@ const UserCard = ({
           className={`${
             customer.status === "Active" ? "bg-red-500" : "bg-green-500"
           } text-white px-2 py-1 rounded`}
+          style={{ minWidth: "100px" }} // Adjust width as needed
           onClick={() => handleStatusChangeClick(customer)}
           disabled={isLoading}
         >
