@@ -60,10 +60,9 @@ export const Report = () => {
           <Sidenav />
         </div>
         <div className="flex flex-col w-full">
-          <Header />
           <main className="flex-grow p-2 bg-gray-100 overflow-auto">
             <div className="bg-white p-4 rounded-lg shadow-md">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center overflow-x-auto mb-4">
                 <h2 className="text-2xl font-bold">Reports</h2>
                 <div className="flex items-center space-x-2">
                   <input

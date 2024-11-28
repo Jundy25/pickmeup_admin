@@ -12,7 +12,7 @@ const UserCard = ({
   openModal,
 }) => {
   const isLoading = loadingUserId === customer.user_id;
-  
+
   return (
     <tr key={customer.user_id}>
       <td className="py-0.5 px-4">
@@ -33,6 +33,7 @@ const UserCard = ({
           className={`${
             customer.status === "Active" ? "bg-red-500" : "bg-green-500"
           } text-white px-2 py-1 rounded`}
+          style={{ minWidth: "100px" }} // Adjust width as needed
           onClick={() => handleStatusChangeClick(customer)}
           disabled={isLoading}
         >
@@ -148,12 +149,12 @@ export const ManageUser = () => {
         customer.user_id,
         newStatus
       );
-  
+
       const updatedCustomers = filteredCustomers.map((c) =>
         c.user_id === customer.user_id ? { ...c, status: newStatus } : c
       );
       setFilteredCustomers(updatedCustomers);
-  
+
       const { first_name, last_name } = response.user;
       swal.fire({
         title: `Customer ${first_name} ${last_name} Status Successfully Updated`,
@@ -205,7 +206,6 @@ export const ManageUser = () => {
         <Sidenav />
       </div>
       <div className="flex-grow flex flex-col">
-        <Header className="fixed" />
         <main className="flex-grow bg-gray-100">
           <div className="p-2">
             <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -251,33 +251,37 @@ export const ManageUser = () => {
                   </svg>
                 </div>
               ) : (
-                <table className="animate__animated animate__fadeIn min-w-full bg-white table-auto">
-                  <thead>
-                    <tr>
-                      <th className="py-2 px-4 border-b border-gray-200 text-left">
-                        Customer Name
-                      </th>
-                      <th className="px-4 border-b border-gray-200 py-2 text-center ">
-                        Status
-                      </th>
-                      <th className="px-4 border-b border-gray-200 py-2 text-right ">
-                        Action
-                      </th>
-                      <th className="px-4 border-b border-gray-200 py-2 ">More</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentCustomers.map((customer) => (
-                      <UserCard
-                        key={customer.user_id}
-                        customer={customer}
-                        handleStatusChangeClick={handleStatusChangeClick}
-                        loadingUserId={loadingUserId}
-                        openModal={openModal}
-                      />
-                    ))}
-                  </tbody>
-                </table>
+                <div className="overflow-auto">
+                  <table className="animate__animated animate__fadeIn min-w-full bg-white table-auto">
+                    <thead>
+                      <tr>
+                        <th className="py-2 px-4 border-b border-gray-200 text-left">
+                          Customer Name
+                        </th>
+                        <th className="px-4 border-b border-gray-200 py-2 text-center ">
+                          Status
+                        </th>
+                        <th className="px-4 border-b border-gray-200 py-2 text-right ">
+                          Action
+                        </th>
+                        <th className="px-4 border-b border-gray-200 py-2 ">
+                          More
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentCustomers.map((customer) => (
+                        <UserCard
+                          key={customer.user_id}
+                          customer={customer}
+                          handleStatusChangeClick={handleStatusChangeClick}
+                          loadingUserId={loadingUserId}
+                          openModal={openModal}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>

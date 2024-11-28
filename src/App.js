@@ -26,6 +26,7 @@ import Settings from "./components/Settings";
 import ManageAccount from "./components/ManageAccount";
 import RidersPayment from "./components/screens/riders/RidersPayment";
 import RidersLocation from "./components/screens/riders/RidersLocation";
+import Header from "./components/parts/Header";
 const AxiosInterceptor = ({ children }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -81,19 +82,15 @@ function AppContent() {
   }
 
   return (
-    <div className="flex relative min-h-screen">
-      {" "}
-      {/* Added relative positioning */}
-      <div className="flex-1 relative">
-        <div className="z-[9999]">
+    <div className="min-h-screen bg-gray-100">
+      <Header />
           <Sidenav />
-        </div>{" "}
-        {/* Added relative positioning */}
         <main
-          className={`flex flex-col min-h-screen ${
-            isSideBarMenuOpen ? "w-[calc(100vw-16rem)] ml-64" : "w-full"
+        className={`transition-all duration-300 ${
+          isSideBarMenuOpen ? "lg:ml-64" : ""
           }`}
         >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/feedback" element={<Feedback />} />
@@ -109,8 +106,8 @@ function AppContent() {
             <Route path="/manageacc" element={<ManageAccount />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-        </main>
       </div>
+      </main>
     </div>
   );
 }

@@ -184,7 +184,6 @@ export const Dashboard = () => {
         <Sidenav />
       </div>
       <div className="flex flex-col w-full min-w-0">
-        <Header />
         <main className="flex-grow p-3 bg-gray-100 overflow-auto">
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
@@ -215,7 +214,9 @@ export const Dashboard = () => {
                   Active Admins
                 </h2>
                 <p className="text-4xl font-bold text-white mb-2">
-                {counts.admin_count !== undefined ? counts.admin_count : counts.admincount}
+                  {counts.admin_count !== undefined
+                    ? counts.admin_count
+                    : counts.admincount}
                 </p>
                 <p className="text-white text-opacity-90">
                   Total Active Admins

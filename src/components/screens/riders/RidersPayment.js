@@ -47,7 +47,6 @@ const RidersPayment = () => {
           <Sidenav />
         </div>
         <div className="flex flex-col w-full">
-          <Header />
           <main className="flex-grow p-6 bg-gray-50">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Riders Payments</h1>
@@ -74,7 +73,7 @@ const RidersPayment = () => {
               </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-x-auto">
               <table className="animate__animated animate__fadeIn min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
